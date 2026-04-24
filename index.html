@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Sayanox | AI-Powered ID Card Studio</title>
+    <!-- html2canvas for high-quality export -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- QR Code generator -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at 10% 30%, #0a0f1c, #02050c);
+            font-family: 'Inter', sans-serif;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .generator-container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* header */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .sayanox-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(250, 204, 21, 0.12);
+            backdrop-filter: blur(8px);
+            padding: 0.5rem 1.8rem;
+            border-radius: 80px;
+            border: 1px solid rgba(250, 204, 21, 0.4);
+        }
+        .sayanox-badge i { color: #facc15; font-size: 1.4rem; }
+        .sayanox-badge span {
+            font-weight: 700;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #FFE6A3, #FACC15);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .tag-line { color: #94a3b8; margin-top: 0.5rem; font-size: 0.9rem; }
+
+        /* layout */
+        .id-workspace {
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            gap: 2rem;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            border-radius: 3rem;
+            padding: 1.8rem;
+            border: 1px solid rgba(250, 204, 21, 0.2);
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 850px) {
+            .id-workspace { grid-template-columns: 1fr; gap: 2rem; }
+            body { padding: 1rem; }
+        }
+
+        /* input panel */
+        .input-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            backdrop-filter: blur(4px);
+            border: 1px solid #2d3a4e;
+        }
+        .input-panel h3 {
+            color: #facc15;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+        }
+        .input-group {
+            margin-bottom: 1.3rem;
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            color: #cbd5e6;
+            margin-bottom: 0.4rem;
+        }
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 1.2rem;
+            padding: 0.8rem 1rem;
+            color: #f1f5f9;
+            font-family: 'Inter', monospace;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+            outline: none;
+            border-color: #facc15;
+            box-shadow: 0 0 0 2px rgba(250,204,21,0.2);
+        }
+        .avatar-upload {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .avatar-preview {
+            width: 60px;
+            height: 60px;
+            background: #1e2a3a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid #facc15;
+        }
+        .avatar-preview img, .avatar-preview i {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .small-btn {
+            background: #2d3a4e;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            color: white;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: 0.2s;
+        }
+        .small-btn:hover { background: #facc15; color: black; }
+        
+        /* layout toggle */
+        .layout-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        .layout-chip {
+            background: #1e2a3a;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .layout-chip.active {
+            background: #facc15;
+            color: black;
+        }
+        .theme-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .theme-chip {
+            background: #1e2a3a;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .theme-chip.active {
+            background: #facc15;
+            color: black;
+        }
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 0.8rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+        .btn-primary { background: #facc15; color: #0a0c15; box-shadow: 0 4px 12px rgba(250,204,21,0.3); }
+        .btn-primary:hover { background: #ffdf6c; transform: scale(1.02); }
+        .btn-linkedin { background: #0077b5; color: white; }
+        .btn-linkedin:hover { background: #0a66c2; }
+
+        /* ID CARD (dynamic layouts) */
+        .card-preview-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+        }
+        .id-card {
+            border-radius: 2rem;
+            padding: 1.2rem;
+            width: 100%;
+            max-width: 420px;
+            transition: all 0.3s ease;
+            box-shadow: 0 25px 40px -12px black;
+        }
+        .card-inner {
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            backdrop-filter: blur(8px);
+        }
+        /* vertical layout (default) */
+        .layout-vertical .profile-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .layout-vertical .card-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.8rem;
+        }
+        .layout-vertical .linkedin-icon {
+            align-self: flex-end;
+        }
+        /* horizontal layout */
+        .layout-horizontal .card-header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .layout-horizontal .profile-row {
+            flex: 1;
+        }
+        .layout-horizontal .skills-section {
+            margin-top: 1rem;
+        }
+        .card-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #2d3a4e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid #facc15;
+            flex-shrink: 0;
+        }
+        .card-name { font-size: 1.3rem; font-weight: 800; line-height: 1.2; }
+        .card-designation { font-size: 0.7rem; opacity: 0.9; }
+        .linkedin-icon {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0a66c2;
+        }
+        .skills-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin: 1rem 0;
+        }
+        .skill-badge {
+            padding: 0.3rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: rgba(0,0,0,0.4);
+        }
+        .qr-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1rem;
+        }
+        .qr-box {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+        }
+        .brand-footer-card {
+            text-align: center;
+            font-size: 0.6rem;
+            margin-top: 1rem;
+            opacity: 0.8;
+        }
+        .download-note { font-size: 0.75rem; color: #9ab3d5; text-align: center; margin-top: 0.5rem; }
+
+        /* Cropper Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #0f172a;
+            border-radius: 2rem;
+            max-width: 90vw;
+            width: 500px;
+            padding: 1.5rem;
+            border: 1px solid #facc15;
+        }
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            margin: 1rem 0;
+            position: relative;
+        }
+        .crop-canvas {
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px #facc15;
+            cursor: move;
+        }
+        .zoom-slider {
+            width: 100%;
+            margin: 1rem 0;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+<body>
+
+<div class="generator-container">
+    <div class="brand-header">
+        <div class="sayanox-badge">
+            <i class="fas fa-id-card"></i>
+            <span>SAYANOX • AI CARD STUDIO</span>
+            <i class="fas fa-magic"></i>
+        </div>
+        <div class="tag-line">Drag & Zoom Avatar • Switch Layouts • HD Export</div>
+    </div>
+
+    <div class="id-workspace">
+        <!-- LEFT CONTROLS -->
+        <div class="input-panel">
+            <h3><i class="fas fa-sliders-h"></i> Customize</h3>
+            <div class="input-group">
+                <label><i class="fas fa-user-circle"></i> Smart Avatar (Drag & Zoom)</label>
+                <div class="avatar-upload">
+                    <div class="avatar-preview" id="avatarPreview">
+                        <i class="fas fa-user-circle avatar-placeholder" style="font-size: 2.5rem; color:#facc15;"></i>
+                    </div>
+                    <div class="avatar-buttons">
+                        <input type="file" id="avatarUpload" accept="image/*" style="display:none">
+                        <button class="small-btn" id="uploadAvatarBtn"><i class="fas fa-upload"></i> Upload</button>
+                        <button class="small-btn" id="clearAvatarBtn"><i class="fas fa-trash-alt"></i> Clear</button>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-user"></i> Full Name</label>
+                <input type="text" id="fullName" value="Sayan Sharma">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-briefcase"></i> Designation</label>
+                <input type="text" id="designation" value="Full-stack Architect | AI Creator">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-code"></i> Skills (comma)</label>
+                <textarea id="skillsInput" rows="2">React, Node.js, UI/UX, Firebase</textarea>
+            </div>
+            <div class="input-group">
+                <label><i class="fab fa-linkedin"></i> LinkedIn URL</label>
+                <input type="url" id="linkedinUrl" value="https://linkedin.com/in/sayanox">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-palette"></i> Card Theme</label>
+                <div class="theme-options" id="themeOptions">
+                    <div class="theme-chip active" data-theme="gold">✨ Gold</div>
+                    <div class="theme-chip" data-theme="blue">💙 Neon Blue</div>
+                    <div class="theme-chip" data-theme="emerald">💚 Emerald</div>
+                </div>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-arrows-alt"></i> Card Layout</label>
+                <div class="layout-options" id="layoutOptions">
+                    <div class="layout-chip active" data-layout="vertical">📱 Vertical</div>
+                    <div class="layout-chip" data-layout="horizontal">🖥️ Horizontal</div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="downloadCardBtn"><i class="fas fa-download"></i> Download HD PNG</button>
+                <button class="btn btn-linkedin" id="shareLinkedinBtn"><i class="fab fa-linkedin"></i> Share on LinkedIn</button>
+            </div>
+        </div>
+
+        <!-- RIGHT: LIVE CARD -->
+        <div class="card-preview-area">
+            <div class="id-card" id="idCardContainer">
+                <div class="card-inner" id="cardInner">
+                    <div class="card-header">
+                        <div class="profile-row">
+                            <div class="card-avatar" id="cardAvatar">
+                                <i class="fas fa-user-circle" style="font-size: 2rem; color:#facc15;"></i>
+                            </div>
+                            <div>
+                                <div class="card-name" id="displayName">Sayan Sharma</div>
+                                <div class="card-designation" id="displayDesignation">Full-stack Architect | AI Creator</div>
+                            </div>
+                        </div>
+                        <div class="linkedin-icon"><i class="fab fa-linkedin-in"></i></div>
+                    </div>
+                    <div class="skills-section" id="skillsContainer"></div>
+                    <div class="qr-area">
+                        <div style="font-size: 0.7rem;"><i class="fas fa-mobile-alt"></i> SCAN ME</div>
+                        <div class="qr-box" id="qrCodeBox"></div>
+                    </div>
+                    <div class="brand-footer-card">
+                        <i class="fas fa-crown"></i> <span>SAYANOX</span> • made by SAYAN <i class="fas fa-heart"></i>
+                    </div>
+                </div>
+            </div>
+            <p class="download-note"><i class="fas fa-magic"></i> AI Cropper: drag & zoom avatar for perfect fit</p>
+        </div>
+    </div>
+</div>
+
+<!-- Cropper Modal -->
+<div id="cropperModal" class="modal">
+    <div class="modal-content">
+        <h3 style="color:#facc15">✂️ Adjust Avatar (Drag & Zoom)</h3>
+        <div class="canvas-container">
+            <canvas id="cropCanvas" width="200" height="200" class="crop-canvas"></canvas>
+        </div>
+        <input type="range" id="zoomRange" min="1" max="3" step="0.01" value="1" class="zoom-slider">
+        <div class="modal-buttons">
+            <button id="applyCropBtn" class="btn btn-primary">Apply</button>
+            <button id="cancelCropBtn" class="btn btn-outline">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== GLOBALS ==========
+    const nameInput = document.getElementById('fullName');
+    const designationInput = document.getElementById('designation');
+    const skillsTextarea = document.getElementById('skillsInput');
+    const linkedinUrlInput = document.getElementById('linkedinUrl');
+    const displayNameSpan = document.getElementById('displayName');
+    const displayDesignationSpan = document.getElementById('displayDesignation');
+    const skillsContainer = document.getElementById('skillsContainer');
+    const qrBox = document.getElementById('qrCodeBox');
+    const downloadBtn = document.getElementById('downloadCardBtn');
+    const shareLinkedinBtn = document.getElementById('shareLinkedinBtn');
+    const cardAvatarDiv = document.getElementById('cardAvatar');
+    const avatarPreviewDiv = document.getElementById('avatarPreview');
+    const avatarUploadInput = document.getElementById('avatarUpload');
+    const uploadBtn = document.getElementById('uploadAvatarBtn');
+    const clearAvatarBtn = document.getElementById('clearAvatarBtn');
+
+    // Theme & Layout
+    let currentTheme = 'gold';
+    let currentLayout = 'vertical';
+
+    // Avatar cropping state
+    let avatarImage = null;       // original image element
+    let croppedAvatarURL = null;  // final cropped circle dataURL
+    let cropModal = document.getElementById('cropperModal');
+    let cropCanvas = document.getElementById('cropCanvas');
+    let ctx = cropCanvas.getContext('2d');
+    let zoomSlider = document.getElementById('zoomRange');
+    let imgWidth, imgHeight;
+    let panX = 0, panY = 0;
+    let dragStart = null;
+    let currentZoom = 1;
+
+    // ========== THEME & LAYOUT ==========
+    function applyTheme(theme) {
+        const card = document.getElementById('idCardContainer');
+        const inner = document.getElementById('cardInner');
+        if (theme === 'gold') {
+            card.style.background = "linear-gradient(145deg, #1e1a2f, #0f0b1a)";
+            inner.style.background = "rgba(30, 26, 47, 0.8)";
+            card.style.boxShadow = "0 25px 40px -12px black, 0 0 0 1px rgba(250,204,21,0.5) inset";
+        } else if (theme === 'blue') {
+            card.style.background = "linear-gradient(145deg, #0a192f, #051021)";
+            inner.style.background = "rgba(10, 30, 60, 0.8)";
+            card.style.boxShadow = "0 25px 40px -12px black, 0 0 0 1px rgba(59,130,246,0.5) inset";
+        } else if (theme === 'emerald') {
+            card.style.background = "linear-gradient(145deg, #0b2a1f, #041a10)";
+            inner.style.background = "rgba(16, 60, 40, 0.8)";
+            card.style.boxShadow = "0 25px 40px -12px black, 0 0 0 1px rgba(16,185,129,0.5) inset";
+        }
+        document.querySelectorAll('.skill-badge').forEach(b => {
+            if (theme === 'gold') b.style.color = '#facc15';
+            else if (theme === 'blue') b.style.color = '#60a5fa';
+            else b.style.color = '#34d399';
+        });
+    }
+
+    function setTheme(theme) {
+        currentTheme = theme;
+        applyTheme(theme);
+        document.queryS
