@@ -144,6 +144,7 @@
         .skill-badge { background: #00000055; padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.65rem; font-weight: 500; }
         .qr-area { display: flex; justify-content: space-between; align-items: center; margin-top: 0.8rem; border-top: 1px solid #ffffff20; padding-top: 0.8rem; }
         .qr-box { width: 60px; height: 60px; background: white; border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 4px; }
+        .qr-box img { max-width: 100%; max-height: 100%; border-radius: 8px; }
         .brand-footer-card { text-align: center; font-size: 0.55rem; margin-top: 0.8rem; opacity: 0.7; }
         /* MODAL */
         .modal {
@@ -177,6 +178,7 @@
 <div class="generator-container">
     <div class="brand-header">
         <div class="sayanox-badge"><i class="fas fa-id-card"></i><span>SAYANOX • STUDIO</span><i class="fas fa-bolt"></i></div>
+        <p style="color:#94a3b8; font-size:0.8rem; margin-top:0.5rem;">Drag & Zoom Avatar · Themes · Layouts · HD Export</p>
     </div>
     <div class="id-workspace">
         <div class="input-panel">
@@ -221,7 +223,7 @@
 <!-- Cropper Modal -->
 <div id="cropperModal" class="modal">
     <div class="modal-content">
-        <h3 style="color:#facc15;">✂️ Drag & Zoom</h3>
+        <h3 style="color:#facc15;">✂️ Drag & Zoom Avatar</h3>
         <div class="canvas-container"><canvas id="cropCanvas" width="200" height="200" class="crop-canvas"></canvas></div>
         <input type="range" id="zoomRange" min="1" max="3" step="0.01" value="1" class="zoom-slider">
         <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem;">
@@ -232,192 +234,167 @@
 </div>
 
 <script>
-    // ----- DOM elements -----
-    const nameInp = document.getElementById('nameInput');
-    const titleInp = document.getElementById('titleInput');
-    const skillsInp = document.getElementById('skillsInput');
-    const linkedinInp = document.getElementById('linkedinInput');
-    const displayName = document.getElementById('displayName');
-    const displayTitle = document.getElementById('displayTitle');
-    const skillsList = document.getElementById('skillsList');
-    const qrBox = document.getElementById('qrBox');
-    const cardContainer = document.getElementById('cardContainer');
-    const cardAvatarDiv = document.getElementById('cardAvatar');
-    const avatarPreviewDiv = document.getElementById('avatarPreview');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const shareBtn = document.getElementById('shareBtn');
-    const uploadFile = document.getElementById('avatarInput');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const clearAvatarBtn = document.getElementById('clearBtn');
-    
-    // state
-    let currentAvatarURL = null;
-    let currentTheme = 'gold';
-    let currentLayout = 'vertical';
-    let pendingImageFile = null;
-    
-    // cropper globals
-    let cropImg = null;
-    let cropPanX = 0, cropPanY = 0, cropZoom = 1;
-    let cropCtx, cropCanvasElem, zoomSlider;
-    
-    // ----- helper: update text & skills -----
-    function updateText() {
-        displayName.innerText = nameInp.value.trim() || 'Sayanox Creator';
-        displayTitle.innerText = titleInp.value.trim() || 'Digital Creator';
-        let skills = skillsInp.value.split(',').map(s=>s.trim()).filter(s=>s);
-        if(skills.length===0) skills = ['Innovator'];
-        if(skills.length>5) skills = skills.slice(0,5);
-        skillsList.innerHTML = '';
-        skills.forEach(s => {
-            let badge = document.createElement('span');
-            badge.className = 'skill-badge';
-            badge.innerText = s;
-            let color = currentTheme==='gold'?'#facc15':(currentTheme==='blue'?'#60a5fa':'#34d399');
-            badge.style.color = color;
-            skillsList.appendChild(badge);
-        });
-    }
-    
-    // ----- QR code update -----
-    function updateQR() {
-        let url = linkedinInp.value.trim();
-        if(!url) url = 'https://linkedin.com/in/sayanox';
-        if(!url.startsWith('http')) url = 'https://'+url;
-        qrBox.innerHTML = '';
-        try {
-            let qr = qrcode(0, 'M');
-            qr.addData(url);
-            qr.make();
-            let size = qr.getModuleCount();
-            let canvas = document.createElement('canvas');
-            let cell=4, margin=2;
-            let w = (size+margin*2)*cell;
-            canvas.width = w; canvas.height = w;
-            let ctx = canvas.getContext('2d');
-            ctx.fillStyle='#fff';
-            ctx.fillRect(0,0,w,w);
-            ctx.fillStyle='#000';
-            for(let r=0; r<size; r++) {
-                for(let c=0; c<size; c++) {
-                    if(qr.isDark(r,c)) ctx.fillRect((c+margin)*cell, (r+margin)*cell, cell, cell);
+    (function(){
+        // ----- DOM elements -----
+        const nameInp = document.getElementById('nameInput');
+        const titleInp = document.getElementById('titleInput');
+        const skillsInp = document.getElementById('skillsInput');
+        const linkedinInp = document.getElementById('linkedinInput');
+        const displayName = document.getElementById('displayName');
+        const displayTitle = document.getElementById('displayTitle');
+        const skillsList = document.getElementById('skillsList');
+        const qrBox = document.getElementById('qrBox');
+        const cardContainer = document.getElementById('cardContainer');
+        const cardAvatarDiv = document.getElementById('cardAvatar');
+        const avatarPreviewDiv = document.getElementById('avatarPreview');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const uploadFile = document.getElementById('avatarInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const clearAvatarBtn = document.getElementById('clearBtn');
+        
+        // Modal & cropper
+        const modal = document.getElementById('cropperModal');
+        const cropCanvas = document.getElementById('cropCanvas');
+        const cropCtx = cropCanvas.getContext('2d');
+        const zoomSlider = document.getElementById('zoomRange');
+        const applyCrop = document.getElementById('cropApplyBtn');
+        const cancelCrop = document.getElementById('cropCancelBtn');
+        
+        // State
+        let currentAvatarURL = null;
+        let currentTheme = 'gold';
+        let currentLayout = 'vertical';
+        let cropImage = null;          // HTMLImageElement
+        let cropPanX = 0, cropPanY = 0;
+        let cropZoom = 1;
+        let isDragging = false;
+        let dragStartX = 0, dragStartY = 0;
+        
+        // ----- Helper: update text, skills, QR -----
+        function updateTextAndSkills() {
+            displayName.innerText = nameInp.value.trim() || 'Sayanox Creator';
+            displayTitle.innerText = titleInp.value.trim() || 'Digital Creator';
+            let skills = skillsInp.value.split(',').map(s=>s.trim()).filter(s=>s);
+            if(skills.length === 0) skills = ['Innovator'];
+            if(skills.length > 5) skills = skills.slice(0,5);
+            skillsList.innerHTML = '';
+            let accentColor = currentTheme === 'gold' ? '#facc15' : (currentTheme === 'blue' ? '#60a5fa' : '#34d399');
+            skills.forEach(skill => {
+                let badge = document.createElement('span');
+                badge.className = 'skill-badge';
+                badge.innerText = skill;
+                badge.style.color = accentColor;
+                skillsList.appendChild(badge);
+            });
+        }
+        
+        function updateQR() {
+            let url = linkedinInp.value.trim();
+            if(!url) url = 'https://linkedin.com/in/sayanox';
+            if(!url.startsWith('http')) url = 'https://' + url;
+            qrBox.innerHTML = '';
+            try {
+                var qr = qrcode(0, 'M');
+                qr.addData(url);
+                qr.make();
+                var size = qr.getModuleCount();
+                var cellSize = 4;
+                var margin = 2;
+                var w = (size + margin*2) * cellSize;
+                var canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = w;
+                var ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0,0,w,w);
+                ctx.fillStyle = '#000000';
+                for(let row=0; row<size; row++) {
+                    for(let col=0; col<size; col++) {
+                        if(qr.isDark(row, col)) {
+                            ctx.fillRect((col+margin)*cellSize, (row+margin)*cellSize, cellSize, cellSize);
+                        }
+                    }
                 }
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                qrBox.appendChild(canvas);
+            } catch(e) { qrBox.innerHTML = '<div>QR error</div>'; }
+        }
+        
+        // ----- Theme & Layout -----
+        function applyTheme(theme) {
+            const inner = cardContainer.querySelector('.card-inner');
+            if(theme === 'gold') {
+                cardContainer.style.background = "linear-gradient(145deg, #1e1a2f, #0f0b1a)";
+                inner.style.background = "rgba(30,26,47,0.85)";
+                cardContainer.style.boxShadow = "0 20px 35px -8px black, 0 0 0 1px rgba(250,204,21,0.5) inset";
+            } else if(theme === 'blue') {
+                cardContainer.style.background = "linear-gradient(145deg, #0a192f, #051021)";
+                inner.style.background = "rgba(10,30,60,0.85)";
+                cardContainer.style.boxShadow = "0 20px 35px -8px black, 0 0 0 1px rgba(59,130,246,0.5) inset";
+            } else if(theme === 'emerald') {
+                cardContainer.style.background = "linear-gradient(145deg, #0b2a1f, #041a10)";
+                inner.style.background = "rgba(16,60,40,0.85)";
+                cardContainer.style.boxShadow = "0 20px 35px -8px black, 0 0 0 1px rgba(16,185,129,0.5) inset";
             }
-            canvas.style.width='100%'; canvas.style.height='100%';
-            qrBox.appendChild(canvas);
-        } catch(e) { qrBox.innerHTML = '<div>QR</div>'; }
-    }
-    
-    // ----- Theme & Layout application -----
-    function applyTheme(theme) {
-        const inner = cardContainer.querySelector('.card-inner');
-        if(theme === 'gold') {
-            cardContainer.style.background = "linear-gradient(145deg, #1e1a2f, #0f0b1a)";
-            inner.style.background = "rgba(30,26,47,0.85)";
-            cardContainer.style.boxShadow = "0 20px 35px -8px black, 0 0 0 1px rgba(250,204,21,0.5) inset";
-        } else if(theme === 'blue') {
-            cardContainer.style.background = "linear-gradient(145deg, #0a192f, #051021)";
-            inner.style.background = "rgba(10,30,60,0.85)";
-            cardContainer.style.boxShadow = "0 20px 35px -8px black, 0 0 0 1px rgba(59,130,246,0.5) inset";
-        } else if(theme === 'emerald') {
-            cardContainer.style.background = "linear-gradient(145deg, #0b2a1f, #041a10)";
-            inner.style.background = "rgba(16,60,40,0.85)";
-            cardContainer.style.boxShadow = "0 20px 35px -8px black, 0 0 0 1px rgba(16,185,129,0.5) inset";
+            let accent = theme==='gold'?'#facc15':(theme==='blue'?'#60a5fa':'#34d399');
+            document.querySelectorAll('.skill-badge').forEach(b => b.style.color = accent);
         }
-        // refresh skill colors
-        let color = theme==='gold'?'#facc15':(theme==='blue'?'#60a5fa':'#34d399');
-        document.querySelectorAll('.skill-badge').forEach(b => b.style.color = color);
-    }
-    
-    function setTheme(theme) {
-        currentTheme = theme;
-        applyTheme(theme);
-        document.querySelectorAll('.theme-chip').forEach(chip => {
-            if(chip.getAttribute('data-theme') === theme) chip.classList.add('active');
-            else chip.classList.remove('active');
-        });
-        updateText(); // refresh skill colors
-    }
-    
-    function setLayout(layout) {
-        currentLayout = layout;
-        cardContainer.classList.remove('layout-vertical', 'layout-horizontal');
-        cardContainer.classList.add(`layout-${layout}`);
-        document.querySelectorAll('.layout-chip').forEach(chip => {
-            if(chip.getAttribute('data-layout') === layout) chip.classList.add('active');
-            else chip.classList.remove('active');
-        });
-    }
-    
-    // ----- Avatar display -----
-    function updateAvatarUI(url) {
-        if(url) {
-            cardAvatarDiv.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover;">`;
-            avatarPreviewDiv.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover;">`;
-        } else {
-            cardAvatarDiv.innerHTML = '<i class="fas fa-user-circle" style="font-size: 2rem; color:#facc15;"></i>';
-            avatarPreviewDiv.innerHTML = '<i class="fas fa-user-circle" style="font-size: 2rem; color:#facc15;"></i>';
+        
+        function setTheme(theme) {
+            currentTheme = theme;
+            applyTheme(theme);
+            document.querySelectorAll('.theme-chip').forEach(chip => {
+                if(chip.getAttribute('data-theme') === theme) chip.classList.add('active');
+                else chip.classList.remove('active');
+            });
+            updateTextAndSkills(); // refresh skill badge colors
         }
-    }
-    
-    // ----- Cropper logic (drag + zoom) -----
-    function initCropper(imageElement) {
-        cropImg = imageElement;
-        cropPanX = 0; cropPanY = 0; cropZoom = 1;
-        zoomSlider.value = 1;
-        drawCropper();
-    }
-    
-    function drawCropper() {
-        if(!cropImg) return;
-        const canvas = cropCanvasElem;
-        const ctx = cropCtx;
-        const size = canvas.width;
-        ctx.clearRect(0,0,size,size);
-        let imgW = cropImg.width, imgH = cropImg.height;
-        let drawW = imgW * cropZoom, drawH = imgH * cropZoom;
-        let sx = cropPanX, sy = cropPanY;
-        let maxX = Math.max(0, drawW - size);
-        let maxY = Math.max(0, drawH - size);
-        sx = Math.min(maxX, Math.max(0, sx));
-        sy = Math.min(maxY, Math.max(0, sy));
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(size/2, size/2, size/2, 0, 2*Math.PI);
-        ctx.clip();
-        ctx.drawImage(cropImg, sx, sy, size, size, 0, 0, size, size);
-        ctx.restore();
-        ctx.beginPath();
-        ctx.arc(size/2, size/2, size/2, 0, 2*Math.PI);
-        ctx.strokeStyle = '#facc15';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    }
-    
-    function getCroppedDataURL() {
-        if(!cropImg) return null;
-        const size = cropCanvasElem.width;
-        const offCanvas = document.createElement('canvas');
-        offCanvas.width = size; offCanvas.height = size;
-        const offCtx = offCanvas.getContext('2d');
-        offCtx.save();
-        offCtx.beginPath();
-        offCtx.arc(size/2, size/2, size/2, 0, 2*Math.PI);
-        offCtx.clip();
-        let imgW = cropImg.width, imgH = cropImg.height;
-        let drawW = imgW * cropZoom, drawH = imgH * cropZoom;
-        let sx = cropPanX, sy = cropPanY;
-        let maxX = Math.max(0, drawW - size);
-        let maxY = Math.max(0, drawH - size);
-        sx = Math.min(maxX, Math.max(0, sx));
-        sy = Math.min(maxY, Math.max(0, sy));
-        offCtx.drawImage(cropImg, sx, sy, size, size, 0, 0, size, size);
-        offCtx.restore();
-        return offCanvas.toDataURL();
-    }
-    
-    // modal references
-    const modal = document.getElementById('cropperModal');
-    cropCanvasElem = document.getElementById('cropCanvas');
-    cropCtx = cropCanvasElem.getContext('2d');
- 
+        
+        function setLayout(layout) {
+            currentLayout = layout;
+            cardContainer.classList.remove('layout-vertical', 'layout-horizontal');
+            cardContainer.classList.add(`layout-${layout}`);
+            document.querySelectorAll('.layout-chip').forEach(chip => {
+                if(chip.getAttribute('data-layout') === layout) chip.classList.add('active');
+                else chip.classList.remove('active');
+            });
+        }
+        
+        // ----- Avatar UI update -----
+        function updateAvatarUI(url) {
+            const iconHtml = '<i class="fas fa-user-circle" style="font-size: 2rem; color:#facc15;"></i>';
+            if(url) {
+                cardAvatarDiv.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover;">`;
+                avatarPreviewDiv.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover;">`;
+            } else {
+                cardAvatarDiv.innerHTML = iconHtml;
+                avatarPreviewDiv.innerHTML = iconHtml;
+            }
+        }
+        
+        // ----- Cropper drawing -----
+        function drawCropper() {
+            if(!cropImage) return;
+            const size = 200;
+            cropCtx.clearRect(0, 0, size, size);
+            cropCtx.save();
+            cropCtx.beginPath();
+            cropCtx.arc(size/2, size/2, size/2, 0, 2*Math.PI);
+            cropCtx.clip();
+            // calculate visible area
+            let imgW = cropImage.width;
+            let imgH = cropImage.height;
+            let drawW = imgW * cropZoom;
+            let drawH = imgH * cropZoom;
+            let sx = cropPanX;
+            let sy = cropPanY;
+            // clamp panning
+            let maxPanX = Math.max(0, drawW - size);
+            let maxPanY = Math.max(0, drawH - size);
+            sx = Math.min(maxPanX, Math.max(0, sx));
+            sy = Math.min(maxPanY, Math.max(0, sy));
+            cropCtx.drawImage(cropImage, sx, sy, size, size, 0, 0, size, size);
+            cropCtx.restore();
+            // draw bord
