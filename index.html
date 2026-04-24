@@ -3,88 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Sayanox | Pro ID Card Generator – Drag & Zoom Avatar</title>
+    <title>Sayanox | Pro ID Card – Fully Working</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
         body {
             background: radial-gradient(circle at 10% 30%, #0a0f1c, #02050c);
             font-family: 'Inter', sans-serif;
-            padding: 2rem 1.5rem;
+            padding: 1rem;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        .generator-container { max-width: 1400px; width: 100%; margin: 0 auto; }
-        .brand-header { text-align: center; margin-bottom: 2rem; }
+        .generator-container { max-width: 1300px; width: 100%; margin: 0 auto; }
+        .brand-header { text-align: center; margin-bottom: 1.5rem; }
         .sayanox-badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-            background: rgba(250,204,21,0.12);
+            gap: 0.5rem;
+            background: rgba(250,204,21,0.15);
             backdrop-filter: blur(8px);
-            padding: 0.5rem 1.8rem;
-            border-radius: 80px;
-            border: 1px solid rgba(250,204,21,0.4);
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            border: 1px solid rgba(250,204,21,0.5);
         }
-        .sayanox-badge i { color: #facc15; font-size: 1.4rem; }
+        .sayanox-badge i { color: #facc15; font-size: 1.2rem; }
         .sayanox-badge span {
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1rem;
             background: linear-gradient(135deg, #FFE6A3, #FACC15);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
         }
-        .tag-line { color: #94a3b8; margin-top: 0.5rem; font-size: 0.9rem; }
         .id-workspace {
             display: grid;
-            grid-template-columns: 1fr 1.1fr;
-            gap: 2rem;
-            background: rgba(15,23,42,0.5);
-            backdrop-filter: blur(4px);
-            border-radius: 3rem;
-            padding: 1.8rem;
-            border: 1px solid rgba(250,204,21,0.2);
-        }
-        @media (max-width: 850px) { .id-workspace { grid-template-columns: 1fr; } body { padding: 1rem; } }
-        .input-panel {
-            background: rgba(0,0,0,0.4);
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            background: rgba(15,23,42,0.6);
+            backdrop-filter: blur(8px);
             border-radius: 2rem;
             padding: 1.5rem;
-            border: 1px solid #2d3a4e;
+            border: 1px solid rgba(250,204,21,0.3);
         }
-        .input-panel h3 { color: #facc15; display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.5rem; }
-        .input-group { margin-bottom: 1.3rem; }
-        .input-group label {
-            display: block;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            font-weight: 600;
-            color: #cbd5e6;
-            margin-bottom: 0.4rem;
+        @media (max-width: 800px) {
+            .id-workspace { grid-template-columns: 1fr; }
         }
-        .input-group input, .input-group textarea, .input-group select {
+        .input-panel {
+            background: rgba(0,0,0,0.5);
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+        }
+        .input-panel h3 { color: #facc15; font-size: 1.2rem; margin-bottom: 1.2rem; display: flex; gap: 0.5rem; align-items: center; }
+        .input-group { margin-bottom: 1rem; }
+        .input-group label { display: block; font-size: 0.7rem; font-weight: 600; color: #9ca9c2; margin-bottom: 0.3rem; text-transform: uppercase; }
+        .input-group input, .input-group textarea {
             width: 100%;
             background: #0f172a;
             border: 1px solid #334155;
-            border-radius: 1.2rem;
-            padding: 0.8rem 1rem;
-            color: #f1f5f9;
+            border-radius: 1rem;
+            padding: 0.7rem 1rem;
+            color: white;
             font-family: 'Inter';
             font-size: 0.9rem;
         }
-        .input-group input:focus, .input-group textarea:focus {
-            outline: none;
-            border-color: #facc15;
-        }
-        .avatar-upload { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .avatar-upload { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
         .avatar-preview {
-            width: 60px; height: 60px;
+            width: 55px; height: 55px;
             background: #1e2a3a;
             border-radius: 50%;
             display: flex;
@@ -93,135 +82,78 @@
             overflow: hidden;
             border: 2px solid #facc15;
         }
-        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
         .small-btn {
             background: #2d3a4e;
             border: none;
-            padding: 0.4rem 1rem;
+            padding: 0.4rem 0.9rem;
             border-radius: 2rem;
             color: white;
+            font-size: 0.7rem;
             cursor: pointer;
-            font-size: 0.75rem;
         }
-        .small-btn:hover { background: #facc15; color: black; }
-        .theme-options, .layout-options {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.5rem;
-            flex-wrap: wrap;
-        }
+        .options-row { display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.5rem 0; }
         .theme-chip, .layout-chip {
             background: #1e2a3a;
-            padding: 0.4rem 1rem;
+            padding: 0.3rem 0.9rem;
             border-radius: 2rem;
             font-size: 0.8rem;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.1s;
         }
         .theme-chip.active, .layout-chip.active { background: #facc15; color: black; }
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
+        .action-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
         .btn {
-            padding: 0.8rem 1.2rem;
+            padding: 0.7rem 1.2rem;
             border-radius: 2rem;
             font-weight: 600;
             border: none;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 0.6rem;
-            font-size: 0.9rem;
+            gap: 0.5rem;
+            font-size: 0.85rem;
         }
         .btn-primary { background: #facc15; color: #0a0c15; }
-        .btn-primary:hover { background: #ffdf6c; transform: scale(1.02); }
         .btn-linkedin { background: #0077b5; color: white; }
-        .btn-linkedin:hover { background: #0a66c2; }
-        .card-preview-area { display: flex; flex-direction: column; align-items: center; gap: 1.2rem; }
+        .card-preview-area { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
         .id-card {
-            border-radius: 2rem;
-            padding: 1.2rem;
+            background: #0f1119;
+            border-radius: 1.8rem;
+            padding: 1rem;
             width: 100%;
-            max-width: 420px;
+            max-width: 380px;
             transition: all 0.2s;
         }
-        .card-inner {
-            border-radius: 1.5rem;
-            padding: 1.2rem;
-            backdrop-filter: blur(8px);
-        }
+        .card-inner { background: rgba(20, 28, 45, 0.8); border-radius: 1.2rem; padding: 1rem; }
         .card-header { display: flex; justify-content: space-between; align-items: center; }
-        .profile-row { display: flex; gap: 1rem; align-items: center; flex: 1; }
+        .profile-row { display: flex; gap: 0.8rem; align-items: center; }
         .card-avatar {
-            width: 60px; height: 60px;
-            border-radius: 50%;
+            width: 55px; height: 55px;
             background: #2d3a4e;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             border: 2px solid #facc15;
-            flex-shrink: 0;
         }
-        .card-name { font-size: 1.3rem; font-weight: 800; }
-        .card-designation { font-size: 0.7rem; opacity: 0.9; }
-        .linkedin-icon {
-            width: 36px; height: 36px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #0a66c2;
-        }
-        .skills-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.6rem;
-            margin: 1rem 0;
-        }
-        .skill-badge {
-            padding: 0.3rem 0.9rem;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            background: rgba(0,0,0,0.4);
-        }
-        .qr-area {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 1rem;
-        }
-        .qr-box {
-            width: 70px; height: 70px;
-            background: white;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px;
-        }
-        .brand-footer-card {
-            text-align: center;
-            font-size: 0.6rem;
-            margin-top: 1rem;
-            opacity: 0.8;
-        }
-        /* Modal for cropper */
+        .card-name { font-weight: 800; font-size: 1.2rem; color: #facc15; }
+        .card-designation { font-size: 0.65rem; color: #cbd5e6; }
+        .linkedin-icon { background: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #0a66c2; }
+        .skills-section { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+        .skill-badge { background: #00000055; padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.65rem; font-weight: 500; }
+        .qr-area { display: flex; justify-content: space-between; align-items: center; margin-top: 0.8rem; border-top: 1px solid #ffffff20; padding-top: 0.8rem; }
+        .qr-box { width: 60px; height: 60px; background: white; border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 4px; }
+        .brand-footer-card { text-align: center; font-size: 0.55rem; margin-top: 0.8rem; opacity: 0.7; }
+        /* MODAL */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(6px);
-            z-index: 1000;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
             justify-content: center;
             align-items: center;
         }
@@ -229,109 +161,59 @@
             background: #0f172a;
             border-radius: 2rem;
             max-width: 90vw;
-            width: 500px;
-            padding: 1.5rem;
+            width: 450px;
+            padding: 1.2rem;
             border: 1px solid #facc15;
         }
-        .canvas-container {
-            display: flex;
-            justify-content: center;
-            margin: 1rem 0;
-        }
-        .crop-canvas {
-            border-radius: 50%;
-            box-shadow: 0 0 0 2px #facc15;
-            cursor: move;
-        }
-        .zoom-slider { width: 100%; margin: 1rem 0; }
-        .modal-buttons { display: flex; gap: 1rem; justify-content: flex-end; }
+        .canvas-container { display: flex; justify-content: center; margin: 1rem 0; }
+        .crop-canvas { border-radius: 50%; box-shadow: 0 0 0 2px #facc15; cursor: move; }
+        .zoom-slider { width: 100%; margin: 0.8rem 0; }
         .layout-horizontal .card-header { flex-direction: row; }
-        .layout-vertical .card-header { flex-direction: column; align-items: stretch; gap: 0.8rem; }
+        .layout-vertical .card-header { flex-direction: column; align-items: stretch; gap: 0.5rem; }
         .layout-vertical .linkedin-icon { align-self: flex-end; }
     </style>
 </head>
 <body>
 <div class="generator-container">
     <div class="brand-header">
-        <div class="sayanox-badge">
-            <i class="fas fa-id-card"></i>
-            <span>SAYANOX • IDENTITY FORGE</span>
-            <i class="fas fa-magic"></i>
-        </div>
-        <div class="tag-line">Drag & Zoom Avatar • Themes • Layouts • HD Download</div>
+        <div class="sayanox-badge"><i class="fas fa-id-card"></i><span>SAYANOX • STUDIO</span><i class="fas fa-bolt"></i></div>
     </div>
     <div class="id-workspace">
         <div class="input-panel">
-            <h3><i class="fas fa-sliders-h"></i> Customize</h3>
+            <h3><i class="fas fa-sliders-h"></i> Controls</h3>
             <div class="input-group">
-                <label>Profile Picture</label>
+                <label>Profile Photo</label>
                 <div class="avatar-upload">
-                    <div class="avatar-preview" id="avatarPreview"><i class="fas fa-user-circle" style="font-size: 2.5rem; color:#facc15;"></i></div>
-                    <div>
-                        <input type="file" id="avatarUpload" accept="image/*" style="display:none">
-                        <button class="small-btn" id="uploadAvatarBtn"><i class="fas fa-upload"></i> Upload</button>
-                        <button class="small-btn" id="clearAvatarBtn"><i class="fas fa-trash-alt"></i> Clear</button>
-                    </div>
+                    <div class="avatar-preview" id="avatarPreview"><i class="fas fa-user-circle" style="font-size: 2rem; color:#facc15;"></i></div>
+                    <input type="file" id="avatarInput" accept="image/*" style="display:none">
+                    <button class="small-btn" id="uploadBtn">Upload</button>
+                    <button class="small-btn" id="clearBtn">Clear</button>
                 </div>
             </div>
-            <div class="input-group">
-                <label>Full Name</label>
-                <input type="text" id="fullName" value="Sayan Sharma">
-            </div>
-            <div class="input-group">
-                <label>Designation</label>
-                <input type="text" id="designation" value="Full-stack Architect | AI Creator">
-            </div>
-            <div class="input-group">
-                <label>Skills (comma)</label>
-                <textarea id="skillsInput" rows="2">React, Node.js, UI/UX, Firebase</textarea>
-            </div>
-            <div class="input-group">
-                <label>LinkedIn URL</label>
-                <input type="url" id="linkedinUrl" value="https://linkedin.com/in/sayanox">
-            </div>
-            <div class="input-group">
-                <label>Theme</label>
-                <div class="theme-options" id="themeOptions">
-                    <div class="theme-chip active" data-theme="gold">Gold</div>
-                    <div class="theme-chip" data-theme="blue">Neon Blue</div>
-                    <div class="theme-chip" data-theme="emerald">Emerald</div>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>Layout</label>
-                <div class="layout-options" id="layoutOptions">
-                    <div class="layout-chip active" data-layout="vertical">Vertical</div>
-                    <div class="layout-chip" data-layout="horizontal">Horizontal</div>
-                </div>
-            </div>
-            <div class="action-buttons">
-                <button class="btn btn-primary" id="downloadCardBtn"><i class="fas fa-download"></i> Download HD PNG</button>
-                <button class="btn btn-linkedin" id="shareLinkedinBtn"><i class="fab fa-linkedin"></i> Share on LinkedIn</button>
-            </div>
+            <div class="input-group"><label>Full Name</label><input type="text" id="nameInput" value="Sayan Sharma"></div>
+            <div class="input-group"><label>Designation</label><input type="text" id="titleInput" value="Full-stack Architect | AI Creator"></div>
+            <div class="input-group"><label>Skills (comma)</label><textarea id="skillsInput" rows="2">React, Node.js, UI/UX, Firebase</textarea></div>
+            <div class="input-group"><label>LinkedIn URL</label><input type="url" id="linkedinInput" value="https://linkedin.com/in/sayanox"></div>
+            <div class="input-group"><label>Theme</label><div class="options-row" id="themeRow"><div class="theme-chip active" data-theme="gold">Gold</div><div class="theme-chip" data-theme="blue">Blue</div><div class="theme-chip" data-theme="emerald">Emerald</div></div></div>
+            <div class="input-group"><label>Layout</label><div class="options-row" id="layoutRow"><div class="layout-chip active" data-layout="vertical">Vertical</div><div class="layout-chip" data-layout="horizontal">Horizontal</div></div></div>
+            <div class="action-buttons"><button class="btn btn-primary" id="downloadBtn"><i class="fas fa-download"></i> Download HD</button><button class="btn btn-linkedin" id="shareBtn"><i class="fab fa-linkedin"></i> Share</button></div>
         </div>
         <div class="card-preview-area">
-            <div class="id-card" id="idCardContainer">
-                <div class="card-inner" id="cardInner">
+            <div class="id-card" id="cardContainer">
+                <div class="card-inner">
                     <div class="card-header">
                         <div class="profile-row">
                             <div class="card-avatar" id="cardAvatar"><i class="fas fa-user-circle" style="font-size: 2rem; color:#facc15;"></i></div>
-                            <div>
-                                <div class="card-name" id="displayName">Sayan Sharma</div>
-                                <div class="card-designation" id="displayDesignation">Full-stack Architect | AI Creator</div>
-                            </div>
+                            <div><div class="card-name" id="displayName">Sayan Sharma</div><div class="card-designation" id="displayTitle">Full-stack Architect | AI Creator</div></div>
                         </div>
                         <div class="linkedin-icon"><i class="fab fa-linkedin-in"></i></div>
                     </div>
-                    <div class="skills-section" id="skillsContainer"></div>
-                    <div class="qr-area">
-                        <div><i class="fas fa-mobile-alt"></i> SCAN ME</div>
-                        <div class="qr-box" id="qrCodeBox"></div>
-                    </div>
-                    <div class="brand-footer-card"><i class="fas fa-crown"></i> <span>SAYANOX</span> • made by SAYAN</div>
+                    <div class="skills-section" id="skillsList"></div>
+                    <div class="qr-area"><span style="font-size:0.65rem;"><i class="fas fa-mobile-alt"></i> SCAN ME</span><div class="qr-box" id="qrBox"></div></div>
+                    <div class="brand-footer-card"><i class="fas fa-crown"></i> SAYANOX • made by SAYAN</div>
                 </div>
             </div>
-            <p class="tag-line" style="font-size:0.7rem;"><i class="fas fa-magic"></i> Click download – your name will be on every card</p>
+            <p style="font-size:0.7rem; color:#9ab3d5;"><i class="fas fa-share-alt"></i> Tap download → share on LinkedIn → your name goes viral</p>
         </div>
     </div>
 </div>
@@ -339,81 +221,69 @@
 <!-- Cropper Modal -->
 <div id="cropperModal" class="modal">
     <div class="modal-content">
-        <h3 style="color:#facc15">✂️ Drag & Zoom Avatar</h3>
-        <div class="canvas-container">
-            <canvas id="cropCanvas" width="200" height="200" class="crop-canvas"></canvas>
-        </div>
+        <h3 style="color:#facc15;">✂️ Drag & Zoom</h3>
+        <div class="canvas-container"><canvas id="cropCanvas" width="200" height="200" class="crop-canvas"></canvas></div>
         <input type="range" id="zoomRange" min="1" max="3" step="0.01" value="1" class="zoom-slider">
-        <div class="modal-buttons">
-            <button id="applyCropBtn" class="btn btn-primary">Apply</button>
-            <button id="cancelCropBtn" class="btn btn-outline" style="background:transparent; border:1px solid #facc15;">Cancel</button>
+        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem;">
+            <button id="cropApplyBtn" class="btn btn-primary" style="padding:0.4rem 1rem;">Apply</button>
+            <button id="cropCancelBtn" class="btn" style="background:#334155;">Cancel</button>
         </div>
     </div>
 </div>
 
 <script>
-    // DOM elements
-    const nameInput = document.getElementById('fullName');
-    const designationInput = document.getElementById('designation');
-    const skillsTextarea = document.getElementById('skillsInput');
-    const linkedinUrlInput = document.getElementById('linkedinUrl');
-    const displayNameSpan = document.getElementById('displayName');
-    const displayDesignationSpan = document.getElementById('displayDesignation');
-    const skillsContainer = document.getElementById('skillsContainer');
-    const qrBox = document.getElementById('qrCodeBox');
-    const downloadBtn = document.getElementById('downloadCardBtn');
-    const shareBtn = document.getElementById('shareLinkedinBtn');
+    // ----- DOM elements -----
+    const nameInp = document.getElementById('nameInput');
+    const titleInp = document.getElementById('titleInput');
+    const skillsInp = document.getElementById('skillsInput');
+    const linkedinInp = document.getElementById('linkedinInput');
+    const displayName = document.getElementById('displayName');
+    const displayTitle = document.getElementById('displayTitle');
+    const skillsList = document.getElementById('skillsList');
+    const qrBox = document.getElementById('qrBox');
+    const cardContainer = document.getElementById('cardContainer');
     const cardAvatarDiv = document.getElementById('cardAvatar');
     const avatarPreviewDiv = document.getElementById('avatarPreview');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    const uploadFile = document.getElementById('avatarInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const clearAvatarBtn = document.getElementById('clearBtn');
     
-    // State
-    let croppedAvatarURL = null;
+    // state
+    let currentAvatarURL = null;
     let currentTheme = 'gold';
     let currentLayout = 'vertical';
-    let pendingImageForCrop = null;
-    let cropImageObj = null;
+    let pendingImageFile = null;
+    
+    // cropper globals
+    let cropImg = null;
     let cropPanX = 0, cropPanY = 0, cropZoom = 1;
-    let isDragging = false, dragStart = { x: 0, y: 0 };
-    const cropCanvas = document.getElementById('cropCanvas');
-    const ctx = cropCanvas.getContext('2d');
-    const zoomSlider = document.getElementById('zoomRange');
+    let cropCtx, cropCanvasElem, zoomSlider;
     
-    // ========== Helper Functions ==========
-    function updateAvatarDisplay(url) {
-        cardAvatarDiv.innerHTML = '';
-        avatarPreviewDiv.innerHTML = '';
-        if (url) {
-            const img1 = document.createElement('img'); img1.src = url;
-            const img2 = document.createElement('img'); img2.src = url;
-            cardAvatarDiv.appendChild(img1);
-            avatarPreviewDiv.appendChild(img2);
-        } else {
-            cardAvatarDiv.innerHTML = '<i class="fas fa-user-circle" style="font-size: 2rem; color:#facc15;"></i>';
-            avatarPreviewDiv.innerHTML = '<i class="fas fa-user-circle" style="font-size: 2.5rem; color:#facc15;"></i>';
-        }
-    }
-    
-    function updateSkills() {
-        let skills = skillsTextarea.value.split(',').map(s=>s.trim()).filter(s=>s);
-        if(!skills.length) skills = ['Creator'];
-        if(skills.length > 5) skills = skills.slice(0,5);
-        skillsContainer.innerHTML = '';
-        skills.forEach(skill => {
-            const badge = document.createElement('span');
+    // ----- helper: update text & skills -----
+    function updateText() {
+        displayName.innerText = nameInp.value.trim() || 'Sayanox Creator';
+        displayTitle.innerText = titleInp.value.trim() || 'Digital Creator';
+        let skills = skillsInp.value.split(',').map(s=>s.trim()).filter(s=>s);
+        if(skills.length===0) skills = ['Innovator'];
+        if(skills.length>5) skills = skills.slice(0,5);
+        skillsList.innerHTML = '';
+        skills.forEach(s => {
+            let badge = document.createElement('span');
             badge.className = 'skill-badge';
-            badge.innerText = skill;
-            badge.style.background = 'rgba(0,0,0,0.4)';
-            if(currentTheme === 'gold') badge.style.color = '#facc15';
-            else if(currentTheme === 'blue') badge.style.color = '#60a5fa';
-            else badge.style.color = '#34d399';
-            skillsContainer.appendChild(badge);
+            badge.innerText = s;
+            let color = currentTheme==='gold'?'#facc15':(currentTheme==='blue'?'#60a5fa':'#34d399');
+            badge.style.color = color;
+            skillsList.appendChild(badge);
         });
     }
     
+    // ----- QR code update -----
     function updateQR() {
-        let url = linkedinUrlInput.value.trim();
+        let url = linkedinInp.value.trim();
         if(!url) url = 'https://linkedin.com/in/sayanox';
-        if(!url.startsWith('http')) url = 'https://' + url;
+        if(!url.startsWith('http')) url = 'https://'+url;
         qrBox.innerHTML = '';
         try {
             let qr = qrcode(0, 'M');
@@ -421,63 +291,133 @@
             qr.make();
             let size = qr.getModuleCount();
             let canvas = document.createElement('canvas');
-            let cellSize = 4, margin = 2;
-            let w = (size + margin*2) * cellSize;
+            let cell=4, margin=2;
+            let w = (size+margin*2)*cell;
             canvas.width = w; canvas.height = w;
-            let ctx2 = canvas.getContext('2d');
-            ctx2.fillStyle = '#fff';
-            ctx2.fillRect(0,0,w,w);
-            ctx2.fillStyle = '#000';
-            for(let row=0; row<size; row++) {
-                for(let col=0; col<size; col++) {
-                    if(qr.isDark(row, col)) {
-                        ctx2.fillRect((col+margin)*cellSize, (row+margin)*cellSize, cellSize, cellSize);
-                    }
+            let ctx = canvas.getContext('2d');
+            ctx.fillStyle='#fff';
+            ctx.fillRect(0,0,w,w);
+            ctx.fillStyle='#000';
+            for(let r=0; r<size; r++) {
+                for(let c=0; c<size; c++) {
+                    if(qr.isDark(r,c)) ctx.fillRect((c+margin)*cell, (r+margin)*cell, cell, cell);
                 }
             }
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
+            canvas.style.width='100%'; canvas.style.height='100%';
             qrBox.appendChild(canvas);
         } catch(e) { qrBox.innerHTML = '<div>QR</div>'; }
     }
     
-    function refreshTextAndQR() {
-        displayNameSpan.innerText = nameInput.value.trim() || 'Sayanox Creator';
-        displayDesignationSpan.innerText = designationInput.value.trim() || 'Digital Architect';
-        updateSkills();
-        updateQR();
-    }
-    
-    // ========== Theme & Layout ==========
+    // ----- Theme & Layout application -----
     function applyTheme(theme) {
-        const card = document.getElementById('idCardContainer');
-        const inner = document.getElementById('cardInner');
+        const inner = cardContainer.querySelector('.card-inner');
         if(theme === 'gold') {
-            card.style.background = "linear-gradient(145deg, #1e1a2f, #0f0b1a)";
-            inner.style.background = "rgba(30,26,47,0.8)";
-            card.style.boxShadow = "0 25px 40px -12px black, 0 0 0 1px rgba(250,204,21,0.5) inset";
+            cardContainer.style.background = "linear-gradient(145deg, #1e1a2f, #0f0b1a)";
+            inner.style.background = "rgba(30,26,47,0.85)";
+            cardContainer.style.boxShadow = "0 20px 35px -8px black, 0 0 0 1px rgba(250,204,21,0.5) inset";
         } else if(theme === 'blue') {
-            card.style.background = "linear-gradient(145deg, #0a192f, #051021)";
-            inner.style.background = "rgba(10,30,60,0.8)";
-            card.style.boxShadow = "0 25px 40px -12px black, 0 0 0 1px rgba(59,130,246,0.5) inset";
+            cardContainer.style.background = "linear-gradient(145deg, #0a192f, #051021)";
+            inner.style.background = "rgba(10,30,60,0.85)";
+            cardContainer.style.boxShadow = "0 20px 35px -8px black, 0 0 0 1px rgba(59,130,246,0.5) inset";
         } else if(theme === 'emerald') {
-            card.style.background = "linear-gradient(145deg, #0b2a1f, #041a10)";
-            inner.style.background = "rgba(16,60,40,0.8)";
-            card.style.boxShadow = "0 25px 40px -12px black, 0 0 0 1px rgba(16,185,129,0.5) inset";
+            cardContainer.style.background = "linear-gradient(145deg, #0b2a1f, #041a10)";
+            inner.style.background = "rgba(16,60,40,0.85)";
+            cardContainer.style.boxShadow = "0 20px 35px -8px black, 0 0 0 1px rgba(16,185,129,0.5) inset";
         }
-        updateSkills(); // refresh badge colors
+        // refresh skill colors
+        let color = theme==='gold'?'#facc15':(theme==='blue'?'#60a5fa':'#34d399');
+        document.querySelectorAll('.skill-badge').forEach(b => b.style.color = color);
     }
     
     function setTheme(theme) {
         currentTheme = theme;
         applyTheme(theme);
         document.querySelectorAll('.theme-chip').forEach(chip => {
-            if(chip.dataset.theme === theme) chip.classList.add('active');
+            if(chip.getAttribute('data-theme') === theme) chip.classList.add('active');
             else chip.classList.remove('active');
         });
+        updateText(); // refresh skill colors
     }
     
     function setLayout(layout) {
         currentLayout = layout;
-        const card = document.getElementById('idCardContainer');
-        card.classList.remove('layout-vertical', '
+        cardContainer.classList.remove('layout-vertical', 'layout-horizontal');
+        cardContainer.classList.add(`layout-${layout}`);
+        document.querySelectorAll('.layout-chip').forEach(chip => {
+            if(chip.getAttribute('data-layout') === layout) chip.classList.add('active');
+            else chip.classList.remove('active');
+        });
+    }
+    
+    // ----- Avatar display -----
+    function updateAvatarUI(url) {
+        if(url) {
+            cardAvatarDiv.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover;">`;
+            avatarPreviewDiv.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover;">`;
+        } else {
+            cardAvatarDiv.innerHTML = '<i class="fas fa-user-circle" style="font-size: 2rem; color:#facc15;"></i>';
+            avatarPreviewDiv.innerHTML = '<i class="fas fa-user-circle" style="font-size: 2rem; color:#facc15;"></i>';
+        }
+    }
+    
+    // ----- Cropper logic (drag + zoom) -----
+    function initCropper(imageElement) {
+        cropImg = imageElement;
+        cropPanX = 0; cropPanY = 0; cropZoom = 1;
+        zoomSlider.value = 1;
+        drawCropper();
+    }
+    
+    function drawCropper() {
+        if(!cropImg) return;
+        const canvas = cropCanvasElem;
+        const ctx = cropCtx;
+        const size = canvas.width;
+        ctx.clearRect(0,0,size,size);
+        let imgW = cropImg.width, imgH = cropImg.height;
+        let drawW = imgW * cropZoom, drawH = imgH * cropZoom;
+        let sx = cropPanX, sy = cropPanY;
+        let maxX = Math.max(0, drawW - size);
+        let maxY = Math.max(0, drawH - size);
+        sx = Math.min(maxX, Math.max(0, sx));
+        sy = Math.min(maxY, Math.max(0, sy));
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(size/2, size/2, size/2, 0, 2*Math.PI);
+        ctx.clip();
+        ctx.drawImage(cropImg, sx, sy, size, size, 0, 0, size, size);
+        ctx.restore();
+        ctx.beginPath();
+        ctx.arc(size/2, size/2, size/2, 0, 2*Math.PI);
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+    
+    function getCroppedDataURL() {
+        if(!cropImg) return null;
+        const size = cropCanvasElem.width;
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = size; offCanvas.height = size;
+        const offCtx = offCanvas.getContext('2d');
+        offCtx.save();
+        offCtx.beginPath();
+        offCtx.arc(size/2, size/2, size/2, 0, 2*Math.PI);
+        offCtx.clip();
+        let imgW = cropImg.width, imgH = cropImg.height;
+        let drawW = imgW * cropZoom, drawH = imgH * cropZoom;
+        let sx = cropPanX, sy = cropPanY;
+        let maxX = Math.max(0, drawW - size);
+        let maxY = Math.max(0, drawH - size);
+        sx = Math.min(maxX, Math.max(0, sx));
+        sy = Math.min(maxY, Math.max(0, sy));
+        offCtx.drawImage(cropImg, sx, sy, size, size, 0, 0, size, size);
+        offCtx.restore();
+        return offCanvas.toDataURL();
+    }
+    
+    // modal references
+    const modal = document.getElementById('cropperModal');
+    cropCanvasElem = document.getElementById('cropCanvas');
+    cropCtx = cropCanvasElem.getContext('2d');
+ 
